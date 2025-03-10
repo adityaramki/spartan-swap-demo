@@ -1,23 +1,44 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import { auth } from "./firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import AuthScreen from "./components/AuthScreen";
+import Main from "./components/Main";
+import Navbar from "./components/Navbar";
+import Buy from "./components/Buy";
+import Footer from "./components/Footer";
 
 function App() {
+  const [user, setUser] = useState(null);
+
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser && currentUser.emailVerified) {
+        setUser(currentUser);
+      } else {
+        setUser(null);
+      }
+     
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {user ? (
+        <>
+          <Navbar />
+          <Main />
+          <Buy />
+          <Footer />
+        </>
+        
+      ) : (
+        <AuthScreen />
+      )}
     </div>
   );
 }
